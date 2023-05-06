@@ -28,8 +28,8 @@ DEFAULT_THEME = "plotly_dark"
 # other configuration
 BAR_TYPE = "group"
 LABEL_UPDATES = {
-    "x": "query",
-    "y": "seconds",
+    "x": "Query",
+    "y": "Seconds",
     "color": "Solution",
     "pattern_shape": "Solution",
 }
@@ -143,9 +143,22 @@ def plot(
         yaxis_range=[0, limit],
         plot_bgcolor="rgba(41,52,65,1)",
         margin=dict(t=100),
-        legend=dict(orientation="h", xanchor="left", yanchor="top", x=0.37, y=-0.1),
+        legend=dict(
+            orientation="v",
+            xanchor="right",
+            yanchor="top",
+            x=1.1,
+            y=1.0,
+            font=dict(size=25),
+            itemsizing="constant",
+            title="",
+        ),
+        xaxis_title=LABEL_UPDATES["x"],
+        yaxis_title=LABEL_UPDATES["y"],
+    ).update_xaxes(tickfont_size=20, title_font=dict(size=24)).update_yaxes(
+        tickfont_size=20, title_font=dict(size=24)
     )
-
+    # labeling the left_side of the plot
     add_annotations(fig, limit, df)
 
     if WRITE_PLOT:
@@ -170,10 +183,21 @@ if __name__ == "__main__":
     df = (
         pl.scan_csv(TIMINGS_FILE)
         .filter(e)
+        .with_column(
+            pl.concat_str(
+                [
+                    pl.col("solution").str.slice(0, 1).str.to_uppercase(),
+                    pl.col("solution").str.slice(1),
+                ]
+            )
+        )
         .with_columns(
             [
                 pl.when(pl.col("success")).then(pl.col("duration[s]")).otherwise(0),
-                pl.format("{}-{}", "solution", "version").alias("solution-version"),
+                pl.format("{} ({})", pl.col("solution"), "version").alias(
+                    "solution-version"
+                ),
+                pl.col("query_no").str.to_uppercase(),
             ]
         )
         .collect()
