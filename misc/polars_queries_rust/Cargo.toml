@@ -11,7 +11,7 @@ jemallocator = { version = "0.5", features = ["disable_initial_exec_tls"] }
 
 [dependencies.polars]
 version = "*"
-path = "../../polars/polars"
+path = "../../../polars/polars"
 default-features = false
 features = [
   "performant",
