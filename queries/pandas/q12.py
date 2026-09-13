@@ -24,12 +24,19 @@ def q() -> None:
         var3 = pd.Timestamp("1994-01-01")
         var4 = pd.Timestamp("1995-01-01")
 
-        jn = orders_ds.merge(lineitem_ds, left_on="o_orderkey", right_on="l_orderkey")
+        lineitem_ds = lineitem_ds[lineitem_ds["l_shipmode"].isin([var1, var2])]
+        lineitem_ds = lineitem_ds[
+            lineitem_ds["l_commitdate"] < lineitem_ds["l_receiptdate"]
+        ]
+        lineitem_ds = lineitem_ds[
+            lineitem_ds["l_shipdate"] < lineitem_ds["l_commitdate"]
+        ]
+        lineitem_ds = lineitem_ds[
+            (lineitem_ds["l_receiptdate"] >= var3)
+            & (lineitem_ds["l_receiptdate"] < var4)
+        ]
 
-        jn = jn[jn["l_shipmode"].isin([var1, var2])]
-        jn = jn[jn["l_commitdate"] < jn["l_receiptdate"]]
-        jn = jn[jn["l_shipdate"] < jn["l_commitdate"]]
-        jn = jn[(jn["l_receiptdate"] >= var3) & (jn["l_receiptdate"] < var4)]
+        jn = orders_ds.merge(lineitem_ds, left_on="o_orderkey", right_on="l_orderkey")
 
         jn["high_line_count"] = jn["o_orderpriority"].isin(["1-URGENT", "2-HIGH"])
         jn["low_line_count"] = ~jn["o_orderpriority"].isin(["1-URGENT", "2-HIGH"])

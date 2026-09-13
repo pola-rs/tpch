@@ -31,6 +31,8 @@ def q() -> None:
         part_supp_ds = part_supp_ds_fn()
         supplier_ds = supplier_ds_fn()
 
+        part_ds = part_ds[part_ds["p_name"].str.contains("green", regex=False)]
+
         jn1 = part_ds.merge(part_supp_ds, left_on="p_partkey", right_on="ps_partkey")
         jn2 = jn1.merge(supplier_ds, left_on="ps_suppkey", right_on="s_suppkey")
         jn3 = jn2.merge(
@@ -40,8 +42,6 @@ def q() -> None:
         )
         jn4 = jn3.merge(orders_ds, left_on="l_orderkey", right_on="o_orderkey")
         jn5 = jn4.merge(nation_ds, left_on="s_nationkey", right_on="n_nationkey")
-
-        jn5 = jn5[jn5["p_name"].str.contains("green", regex=False)]
 
         jn5["o_year"] = jn5["o_orderdate"].dt.year
         jn5["amount"] = jn5["l_extendedprice"] * (1.0 - jn5["l_discount"]) - (

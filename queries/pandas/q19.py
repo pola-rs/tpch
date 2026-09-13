@@ -19,10 +19,10 @@ def q() -> None:
         lineitem_ds = lineitem_ds_fn()
         part_ds = part_ds_fn()
 
-        jn = part_ds.merge(lineitem_ds, left_on="p_partkey", right_on="l_partkey")
+        lineitem_ds = lineitem_ds[lineitem_ds["l_shipmode"].isin(["AIR", "AIR REG"])]
+        lineitem_ds = lineitem_ds[lineitem_ds["l_shipinstruct"] == "DELIVER IN PERSON"]
 
-        jn = jn[jn["l_shipmode"].isin(["AIR", "AIR REG"])]
-        jn = jn[jn["l_shipinstruct"] == "DELIVER IN PERSON"]
+        jn = part_ds.merge(lineitem_ds, left_on="p_partkey", right_on="l_partkey")
 
         # Complex filter conditions
         cond1 = (

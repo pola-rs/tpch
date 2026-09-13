@@ -22,9 +22,11 @@ def q() -> None:
         var1 = pd.Timestamp("1995-09-01")
         var2 = pd.Timestamp("1995-10-01")
 
-        jn = lineitem_ds.merge(part_ds, left_on="l_partkey", right_on="p_partkey")
+        lineitem_ds = lineitem_ds[
+            (lineitem_ds["l_shipdate"] >= var1) & (lineitem_ds["l_shipdate"] < var2)
+        ]
 
-        jn = jn[(jn["l_shipdate"] >= var1) & (jn["l_shipdate"] < var2)]
+        jn = lineitem_ds.merge(part_ds, left_on="l_partkey", right_on="p_partkey")
 
         jn["revenue"] = jn["l_extendedprice"] * (1 - jn["l_discount"])
         jn["promo_revenue"] = jn["revenue"].where(

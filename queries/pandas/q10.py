@@ -28,12 +28,14 @@ def q() -> None:
         var1 = pd.Timestamp("1993-10-01")
         var2 = pd.Timestamp("1994-01-01")
 
+        orders_ds = orders_ds[
+            (orders_ds["o_orderdate"] >= var1) & (orders_ds["o_orderdate"] < var2)
+        ]
+        lineitem_ds = lineitem_ds[lineitem_ds["l_returnflag"] == "R"]
+
         jn1 = customer_ds.merge(orders_ds, left_on="c_custkey", right_on="o_custkey")
         jn2 = jn1.merge(lineitem_ds, left_on="o_orderkey", right_on="l_orderkey")
         jn3 = jn2.merge(nation_ds, left_on="c_nationkey", right_on="n_nationkey")
-
-        jn3 = jn3[(jn3["o_orderdate"] >= var1) & (jn3["o_orderdate"] < var2)]
-        jn3 = jn3[jn3["l_returnflag"] == "R"]
 
         jn3["revenue"] = jn3["l_extendedprice"] * (1 - jn3["l_discount"])
 
